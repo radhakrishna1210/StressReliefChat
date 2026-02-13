@@ -1,80 +1,37 @@
-# Render Blueprint Configuration
-# This file enables one-click deployment of the StressReliefChat application to Render
-# Documentation: https://render.com/docs/blueprint-spec
-
 services:
-  # Backend API Service (Express.js + Socket.IO)
+  # Backend Service
   - type: web
-    name: stressreliefchat-backend
-    runtime: node
-    region: oregon # Change to your preferred region
-    plan: free # Change to 'starter' or higher for production
+    name: stress-relief-backend
+    env: node
     rootDir: backend
+    plan: free # Optional: defaults to starter/free depending on account
     buildCommand: npm install
     startCommand: npm start
-    healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 5000
       - key: MONGODB_URI
-        sync: false # Must be set manually in Render dashboard
+        sync: false # Prompt user for value
       - key: JWT_SECRET
-        generateValue: true # Render will auto-generate
-      - key: JWT_REFRESH_SECRET
-        generateValue: true # Render will auto-generate
+        generateValue: true
       - key: FRONTEND_URL
         fromService:
           type: web
-          name: stressreliefchat-frontend
-          property: host
-      - key: GOOGLE_CLIENT_ID
-        sync: false # Must be set manually
-      - key: GOOGLE_CLIENT_SECRET
-        sync: false # Must be set manually
-      - key: GOOGLE_CALLBACK_URL
-        value: https://stressreliefchat-backend.onrender.com/api/auth/google/callback
-      - key: ADMIN_EMAIL
-        sync: false # Must be set manually
-      - key: ADMIN_PASSWORD
-        sync: false # Must be set manually
+          name: stress-relief-frontend
+          property: url
 
-  # Frontend Web Service (Next.js)
+  # Frontend Service
   - type: web
-    name: stressreliefchat-frontend
-    runtime: node
-    region: oregon # Should match backend region
-    plan: free # Change to 'starter' or higher for production
+    name: stress-relief-frontend
+    env: node
     rootDir: frontend
-    buildCommand: npm install && npm run build
+    plan: free
+    # Ensure devDependencies (like tailwindcss) are installed for the build
+    buildCommand: npm install --include=dev && npm run build
     startCommand: npm start
-    healthCheckPath: /
     envVars:
-      - key: NODE_ENV
-        value: production
       - key: NEXT_PUBLIC_API_URL
         fromService:
           type: web
-          name: stressreliefchat-backend
-          property: host
-      - key: NEXT_PUBLIC_SOCKET_URL
-        fromService:
-          type: web
-          name: stressreliefchat-backend
-          property: host
-      - key: NEXT_PUBLIC_GOOGLE_CLIENT_ID
-        sync: false # Must be set manually
-
-# Note: After deployment, you must manually set these environment variables in Render dashboard:
-# Backend:
-#   - MONGODB_URI (from MongoDB Atlas)
-#   - GOOGLE_CLIENT_ID
-#   - GOOGLE_CLIENT_SECRET
-#   - ADMIN_EMAIL
-#   - ADMIN_PASSWORD
-#   - EMAIL_USER (optional)
-#   - EMAIL_PASS (optional)
-#
-# Frontend:
-#   - NEXT_PUBLIC_GOOGLE_CLIENT_ID
+          name: stress-relief-backend
+          property: url
