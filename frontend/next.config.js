@@ -1,6 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "standalone",
   eslint: {
     // Skip ESLint during production builds (Render) to avoid TS parsing issues.
     // Local development linting can still be run with `npm run lint`.
@@ -11,7 +10,6 @@ const nextConfig = {
     formats: ["image/avif", "image/webp"]
   },
   compress: true,
-  poweredByHeader: false,
   generateBuildId: async () => {
     return process.env.BUILD_ID || 'development'
   },

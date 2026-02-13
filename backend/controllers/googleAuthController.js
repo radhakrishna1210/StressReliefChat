@@ -10,7 +10,9 @@ passport.use(
         {
             clientID: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-            callbackURL: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/api/auth/google/callback`.replace(':3000', ':5000'),
+            callbackURL: process.env.BACKEND_URL
+                ? `${process.env.BACKEND_URL}/api/auth/google/callback`
+                : `${process.env.FRONTEND_URL || 'http://localhost:3000'}/api/auth/google/callback`.replace(':3000', ':5000'),
             proxy: true,
         },
         async (accessToken, refreshToken, profile, done) => {
@@ -109,7 +111,7 @@ const handleGoogleCallback = (req, res, next) => {
             });
 
             // Redirect to frontend callback page with token
-            const callbackUrl = process.env.GOOGLE_CALLBACK_URL || 'http://localhost:3000/auth/google/callback';
+            const callbackUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth/google/callback`;
             res.redirect(`${callbackUrl}?token=${token}`);
         } catch (error) {
             logger.error('Error generating token in Google callback:', error);

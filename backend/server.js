@@ -24,6 +24,10 @@ const app = express();
 const httpServer = http.createServer(app);
 const PORT = process.env.PORT || 5000;
 
+// Trust proxy is required when running behind a load balancer (like Render, Heroku, Nginx)
+// This allows express-rate-limit to correctly identify users via X-Forwarded-For header
+app.set('trust proxy', 1);
+
 // Initialize Socket.IO with CORS
 const io = new Server(httpServer, {
     cors: {
