@@ -17,6 +17,12 @@ class EmailService {
                 user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASSWORD,
             },
+            // Debugging entries
+            connectionTimeout: 10000, // 10 seconds
+            greetingTimeout: 10000,
+            socketTimeout: 10000,
+            logger: true,
+            debug: true,
         };
 
         // Only create transporter if credentials are provided
