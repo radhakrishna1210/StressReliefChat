@@ -1,8 +1,19 @@
 import { User } from './storage';
 
 const getApiUrl = () => {
-    const url = process.env.NEXT_PUBLIC_API_URL || 'https://localhost:5000';
-    return url.startsWith('http') ? url : `https://${url}`;
+    let url = process.env.NEXT_PUBLIC_API_URL || 'https://localhost:5000';
+    
+    // Ensure we have a proper URL
+    if (!url.startsWith('http')) {
+        // If it's just a hostname without domain, assume it's a Render service
+        if (!url.includes('.')) {
+            url = `https://${url}.onrender.com`;
+        } else {
+            url = `https://${url}`;
+        }
+    }
+    
+    return url;
 }
 
 const API_URL = getApiUrl();

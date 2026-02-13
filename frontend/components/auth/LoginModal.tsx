@@ -25,11 +25,20 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
     const handleGoogleLogin = () => {
         try {
             setLoading(true);
-            const rawUrl = process.env.NEXT_PUBLIC_API_URL || 'https://localhost:5000';
-            const API_BASE_URL = rawUrl.startsWith('http') ? rawUrl : `https://${rawUrl}`;
+            let apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://localhost:5000';
+            
+            // Ensure we have a proper URL
+            if (!apiUrl.startsWith('http')) {
+                // If it's just a hostname without domain, assume it's a Render service
+                if (!apiUrl.includes('.')) {
+                    apiUrl = `https://${apiUrl}.onrender.com`;
+                } else {
+                    apiUrl = `https://${apiUrl}`;
+                }
+            }
 
             // Redirect to backend Google OAuth endpoint
-            window.location.href = `${API_BASE_URL}/api/auth/google`;
+            window.location.href = `${apiUrl}/api/auth/google`;
         } catch (error) {
             toast.error('Google login failed');
             setLoading(false);
