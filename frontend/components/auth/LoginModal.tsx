@@ -25,7 +25,8 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
     const handleGoogleLogin = () => {
         try {
             setLoading(true);
-            const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://localhost:5000';
+            const rawUrl = process.env.NEXT_PUBLIC_API_URL || 'https://localhost:5000';
+            const API_BASE_URL = rawUrl.startsWith('http') ? rawUrl : `https://${rawUrl}`;
 
             // Redirect to backend Google OAuth endpoint
             window.location.href = `${API_BASE_URL}/api/auth/google`;
