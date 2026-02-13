@@ -16,7 +16,10 @@ const corsOptions = {
 
     // Production: strict single origin (or comma-separated list) via env
     if (isProd) {
-      const allowed = (process.env.FRONTEND_URL || '').split(',').map((s) => s.trim()).filter(Boolean);
+      const allowed = (process.env.FRONTEND_URL || '').split(',').map((s) => {
+        const url = s.trim();
+        return url.startsWith('http') ? url : `https://${url}`;
+      }).filter(Boolean);
       return callback(null, allowed.length === 0 ? origin : allowed.includes(origin));
     }
 

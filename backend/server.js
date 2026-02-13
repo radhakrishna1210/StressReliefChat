@@ -31,7 +31,10 @@ const io = new Server(httpServer, {
         // In production, keep it strict via FRONTEND_URL.
         origin:
             process.env.NODE_ENV === 'production'
-                ? (process.env.FRONTEND_URL || 'http://localhost:3000').split(',').map((s) => s.trim())
+                ? (process.env.FRONTEND_URL || 'http://localhost:3000').split(',').map((s) => {
+                    const url = s.trim();
+                    return url.startsWith('http') ? url : `https://${url}`;
+                })
                 : (origin, callback) => {
                     if (!origin) return callback(null, true);
                     if (origin === 'http://localhost:3000' || origin === 'http://127.0.0.1:3000') return callback(null, true);

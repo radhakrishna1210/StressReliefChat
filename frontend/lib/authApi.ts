@@ -1,6 +1,11 @@
 import { User } from './storage';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://localhost:5000';
+const getApiUrl = () => {
+    const url = process.env.NEXT_PUBLIC_API_URL || 'https://localhost:5000';
+    return url.startsWith('http') ? url : `https://${url}`;
+}
+
+const API_URL = getApiUrl();
 
 export interface AuthResponse {
     success: boolean;

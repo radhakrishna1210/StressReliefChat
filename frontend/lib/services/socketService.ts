@@ -19,7 +19,7 @@ class SocketService {
         // Prefer explicit env var, but treat localhost as a dev default that should not override LAN usage.
         this.serverUrl =
             (envUrl && envUrl !== 'http://localhost:5000' && envUrl !== 'localhost:5000')
-                ? envUrl
+                ? (envUrl.startsWith('http') ? envUrl : `https://${envUrl}`)
                 : derivedUrl;
     }
 
