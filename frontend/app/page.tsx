@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import AITriage from '@/components/AITriage';
@@ -12,11 +12,27 @@ export default function Home() {
   const router = useRouter();
   const [showEmergency, setShowEmergency] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
     const user = getCurrentUser();
     setIsLoggedIn(!!user);
   }, []);
+
+  // Generate stable particle positions only on client to avoid hydration mismatch
+  const particles = useMemo(() => {
+    if (!isMounted) return [];
+    return Array.from({ length: 20 }, (_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+      width: 20 + Math.random() * 40,
+      height: 20 + Math.random() * 40,
+      duration: 8 + Math.random() * 4,
+      delay: Math.random() * 2,
+    }));
+  }, [isMounted]);
 
   const handleStartTriage = () => {
     const user = getCurrentUser();
@@ -52,24 +68,24 @@ export default function Home() {
       <section className="relative min-h-screen flex flex-col items-center justify-center px-4 py-12 overflow-hidden">
         {/* Floating Particles Background */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(20)].map((_, i) => (
+          {particles.map((particle) => (
             <motion.div
-              key={i}
+              key={particle.id}
               className="particle"
               style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                width: `${20 + Math.random() * 40}px`,
-                height: `${20 + Math.random() * 40}px`,
+                left: `${particle.left}%`,
+                top: `${particle.top}%`,
+                width: `${particle.width}px`,
+                height: `${particle.height}px`,
               }}
               animate={{
                 y: [0, -30, 0],
                 opacity: [0.3, 0.6, 0.3],
               }}
               transition={{
-                duration: 8 + Math.random() * 4,
+                duration: particle.duration,
                 repeat: Infinity,
-                delay: Math.random() * 2,
+                delay: particle.delay,
               }}
             />
           ))}

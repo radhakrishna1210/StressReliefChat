@@ -7,12 +7,12 @@ let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
 
 if (!uri) {
-  // In build or non-configured environments, use a rejected promise.
-  // Any API route that tries to use the DB without configuration will fail clearly at runtime,
-  // but the Next.js build itself will still succeed.
-  clientPromise = Promise.reject(
-    new Error('MONGODB_URI is not set. Please configure it in your environment.')
-  );
+  // In build or non-configured environments, avoid creating an *unhandled* rejected Promise.
+  // Route handlers can still fail clearly at runtime when they `await clientPromise`.
+  const err = new Error('MONGODB_URI is not set. Please configure it in your environment.');
+  clientPromise = Promise.reject(err);
+  // Mark as handled to prevent Node/Next build from treating it as an unhandled rejection.
+  clientPromise.catch(() => undefined);
 } else if (process.env.NODE_ENV === 'development') {
   // In development mode, use a global variable so that the value
   // is preserved across module reloads caused by HMR (Hot Module Replacement).

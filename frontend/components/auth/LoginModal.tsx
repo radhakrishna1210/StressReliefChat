@@ -25,7 +25,7 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
     const handleGoogleLogin = () => {
         try {
             setLoading(true);
-            let apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://localhost:5000';
+            let apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
             
             // Ensure we have a proper URL
             if (!apiUrl.startsWith('http')) {
@@ -33,7 +33,12 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
                 if (!apiUrl.includes('.')) {
                     apiUrl = `https://${apiUrl}.onrender.com`;
                 } else {
-                    apiUrl = `https://${apiUrl}`;
+                    // For localhost, use http, otherwise https
+                    if (apiUrl.includes('localhost') || apiUrl.includes('127.0.0.1')) {
+                        apiUrl = `http://${apiUrl}`;
+                    } else {
+                        apiUrl = `https://${apiUrl}`;
+                    }
                 }
             }
 

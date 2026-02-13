@@ -1,7 +1,7 @@
 import { User } from './storage';
 
 const getApiUrl = () => {
-    let url = process.env.NEXT_PUBLIC_API_URL || 'https://localhost:5000';
+    let url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
     
     // Ensure we have a proper URL
     if (!url.startsWith('http')) {
@@ -9,7 +9,12 @@ const getApiUrl = () => {
         if (!url.includes('.')) {
             url = `https://${url}.onrender.com`;
         } else {
-            url = `https://${url}`;
+            // For localhost, use http, otherwise https
+            if (url.includes('localhost') || url.includes('127.0.0.1')) {
+                url = `http://${url}`;
+            } else {
+                url = `https://${url}`;
+            }
         }
     }
     
@@ -107,7 +112,18 @@ export async function verifyOTP(data: {
         body: JSON.stringify(data),
     });
 
-    return await response.json();
+    const result = await response.json();
+
+    // If response is not ok, ensure error is set
+    if (!response.ok) {
+        return {
+            success: false,
+            message: result.message || 'OTP verification failed',
+            error: result.error || result.message || 'Invalid OTP',
+        };
+    }
+
+    return result;
 }
 
 /**

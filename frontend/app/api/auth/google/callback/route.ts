@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// This route depends on request URL query params and external network calls (Google),
+// so it must always be treated as dynamic.
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;

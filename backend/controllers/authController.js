@@ -240,6 +240,19 @@ const verifyOTP = async (req, res, next) => {
 
             user = await UserModel.update(email, updates);
 
+            // Re-fetch user if update returned null (shouldn't happen, but safety check)
+            if (!user) {
+                user = await UserModel.findByEmail(email);
+                if (!user) {
+                    throw new AppError('User not found after update', 500);
+                }
+            }
+
+            // Ensure role has a default value
+            if (!user.role) {
+                user.role = 'client';
+            }
+
             if (user.role === 'listener') {
                 logger.info(`Listener logged in via OTP: ${email}`);
             }
@@ -248,13 +261,18 @@ const verifyOTP = async (req, res, next) => {
         // Reset login attempts
         await UserModel.resetLoginAttempts(email);
 
+        // Ensure user has all required fields
+        if (!user.role) {
+            user.role = 'client';
+        }
+
         // Generate JWT token with full user object (matching Google OAuth pattern)
         const token = generateToken({
             userId: user._id.toString(),
             email: user.email,
             name: user.name,
             phone: user.phone || '',
-            role: user.role,
+            role: user.role || 'client',
             emailVerified: user.emailVerified,
             provider: user.provider || 'otp',
             picture: user.picture || '',
@@ -272,7 +290,7 @@ const verifyOTP = async (req, res, next) => {
                     email: user.email,
                     phone: user.phone || '',
                     emailVerified: user.emailVerified,
-                    role: user.role,
+                    role: user.role || 'client',
                     provider: user.provider || 'otp',
                     picture: user.picture || '',
                 },
