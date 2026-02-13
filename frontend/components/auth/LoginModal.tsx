@@ -12,9 +12,10 @@ import { decodeAndStoreUserData } from '@/lib/UserData';
 interface LoginModalProps {
     isOpen: boolean;
     onClose: () => void;
+    onSuccess?: (user: any) => void;
 }
 
-export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
+export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalProps) {
     const [loading, setLoading] = useState(false);
     const [showEmailLogin, setShowEmailLogin] = useState(false);
     const [otpSent, setOtpSent] = useState(false);
@@ -74,6 +75,9 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                 decodeAndStoreUserData();
                 await setCurrentUser(response.data.user);
                 toast.success('Login successful!', { icon: '🎉' });
+                if (onSuccess) {
+                    onSuccess(response.data.user);
+                }
                 onClose();
                 // Reload page to update UI with logged-in state
                 window.location.reload();
