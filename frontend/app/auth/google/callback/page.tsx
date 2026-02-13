@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { FaSpinner, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import { decodeAndStoreUserData } from '@/lib/UserData';
 import { setCurrentUser } from '@/lib/storage';
 
-export default function GoogleAuthCallback() {
+function GoogleAuthCallbackInner() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
@@ -117,5 +117,13 @@ export default function GoogleAuthCallback() {
                 )}
             </motion.div>
         </div>
+    );
+}
+
+export default function GoogleAuthCallback() {
+    return (
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+            <GoogleAuthCallbackInner />
+        </Suspense>
     );
 }

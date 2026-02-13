@@ -39,3 +39,5 @@ services:
           type: web
           name: stress-relief-backend
           property: host
+      - key: MONGODB_URI
+        sync: false # Set this to the same Mongo URI used by the backend

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FaPhone, FaStar, FaClock, FaWallet, FaMicrophone, FaMicrophoneSlash, FaHeart, FaSearch, FaSpinner } from 'react-icons/fa';
 import {
@@ -30,7 +30,7 @@ interface ListenerProfile {
   experience: string;
 }
 
-export default function CallInterfacePage() {
+function CallInterfacePageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [callDuration, setCallDuration] = useState(0);
@@ -527,5 +527,13 @@ export default function CallInterfacePage() {
         </div>
       )}
     </main>
+  );
+}
+
+export default function CallInterfacePage() {
+  return (
+    <Suspense fallback={<main className="min-h-screen flex items-center justify-center">Loading...</main>}>
+      <CallInterfacePageInner />
+    </Suspense>
   );
 }

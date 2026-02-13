@@ -37,7 +37,7 @@ export const paymentSchema = z.object({
         .min(15, 'Minimum duration is 15 minutes')
         .max(120, 'Maximum duration is 120 minutes'),
     paymentMethod: z.enum(['upi', 'card', 'applepay', 'googlepay'], {
-        required_error: 'Please select a payment method',
+        message: 'Please select a payment method',
     }),
 });
 
@@ -68,7 +68,7 @@ export const walletTopUpSchema = z.object({
         .min(100, 'Minimum top-up amount is ₹100')
         .max(10000, 'Maximum top-up amount is ₹10,000'),
     paymentMethod: z.enum(['upi', 'card', 'applepay', 'googlepay'], {
-        required_error: 'Please select a payment method',
+        message: 'Please select a payment method',
     }),
 });
 
