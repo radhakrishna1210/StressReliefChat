@@ -88,10 +88,31 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
             if (response.success && response.data) {
                 authApi.setAuthToken(response.data.token);
                 decodeAndStoreUserData();
-                await setCurrentUser(response.data.user);
+                
+                // Get role from decoded token (source of truth) and merge with API response
+                const userData = { ...response.data.user };
+                const tokenData = localStorage.getItem('userData');
+                if (tokenData) {
+                    try {
+                        const decoded = JSON.parse(tokenData);
+                        // Prioritize role from token (JWT is source of truth)
+                        if (decoded.role) {
+                            userData.role = decoded.role;
+                        }
+                    } catch (e) {
+                        console.error('Error parsing token data:', e);
+                    }
+                }
+                
+                // Normalize role: 'client' -> 'user' for frontend compatibility
+                if ((userData.role as string) === 'client') {
+                    userData.role = 'user';
+                }
+                
+                await setCurrentUser(userData);
                 toast.success('Login successful!', { icon: '🎉' });
                 if (onSuccess) {
-                    onSuccess(response.data.user);
+                    onSuccess(userData);
                 }
                 onClose();
                 // Reload page to update UI with logged-in state
@@ -136,6 +157,8 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
                             resetEmailLogin();
                         }}
                         className="text-white/80 hover:text-white transition"
+                        aria-label="Close login modal"
+                        title="Close"
                     >
                         <FaTimes className="text-xl" />
                     </button>

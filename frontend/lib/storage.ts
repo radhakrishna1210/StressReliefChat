@@ -35,13 +35,38 @@ export function getUserId(user: User | null): string | null {
 /**
  * Get current logged-in user from storage
  * Uses sessionStorage for current session (cleared on tab close)
+ * Falls back to token data if role is missing
  */
 export function getCurrentUser(): User | null {
   if (typeof window === 'undefined') return null;
   const userData = sessionStorage.getItem('currentUser');
   if (!userData) return null;
   try {
-    return JSON.parse(userData);
+    const user = JSON.parse(userData);
+    
+    // If role is missing or is 'client', check token data
+    if (!user.role || user.role === 'client') {
+      const tokenData = localStorage.getItem('userData');
+      if (tokenData) {
+        try {
+          const decoded = JSON.parse(tokenData);
+          if (decoded.role) {
+            user.role = decoded.role === 'client' ? 'user' : decoded.role;
+          } else if (!user.role) {
+            user.role = 'user';
+          }
+        } catch (e) {
+          // If parsing fails, use default
+          if (!user.role) {
+            user.role = 'user';
+          }
+        }
+      } else if (!user.role) {
+        user.role = 'user';
+      }
+    }
+    
+    return user;
   } catch {
     return null;
   }

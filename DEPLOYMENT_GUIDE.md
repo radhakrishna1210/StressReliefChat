@@ -56,8 +56,14 @@ Once the deployment finishes (it might take a few minutes):
 -   **Backend Start:** Ensure your `MONGODB_URI` is correct and allows connections from anywhere (0.0.0.0/0) in MongoDB Atlas Network Access.
 
 ### App Not Working?
+-   **502 Bad Gateway Error:** This usually means the frontend server isn't starting correctly. 
+    -   Check the frontend service logs in Render Dashboard to see startup errors
+    -   Ensure the build completed successfully (check build logs)
+    -   Verify that `npm run start:standalone` command works (the standalone server should start)
+    -   Make sure `NEXT_PUBLIC_API_URL` is set correctly and points to your backend service
 -   **CORS Issues:** If the frontend can't talk to the backend, check the Browser Console (F12). The backend is configured to accept the frontend URL automatically via `FRONTEND_URL` environment variable, but sometimes a redeploy of the backend is needed if the frontend URL wasn't ready when the backend started (unlikely with Blueprints, but possible).
 -   **Environment Variables:** Double-check that `MONGODB_URI` and `JWT_SECRET` are set correctly in the Render Dashboard under **Environment**.
+-   **Standalone Mode:** The frontend uses Next.js standalone mode. If you see errors about missing files, ensure the build completed successfully and the `.next/standalone` directory was created.
 
 ## Important: Free Tier Limitations
 -   Render's free web services spin down after inactivity. The first request after a while might take 30-50 seconds to load.

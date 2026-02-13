@@ -32,8 +32,10 @@ services:
     plan: free
     # Ensure devDependencies (like tailwindcss) are installed for the build
     buildCommand: npm install --include=dev && npm run build
-    startCommand: node .next/standalone/server.js
+    startCommand: npm run start:standalone
     envVars:
+      - key: NODE_ENV
+        value: production
       - key: NEXT_PUBLIC_API_URL
         fromService:
           type: web

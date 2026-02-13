@@ -26,7 +26,7 @@ import {
     type User,
 } from '@/lib/storage';
 
-export default function DashboardPage() {
+function DashboardPageContent() {
     const router = useRouter();
     const [selectedOption, setSelectedOption] = useState<{
         type: 'ai' | 'human' | 'therapist';
@@ -44,6 +44,9 @@ export default function DashboardPage() {
 
     // Handle Google OAuth callback
     useEffect(() => {
+        // Only run on client side
+        if (typeof window === 'undefined') return;
+        
         const urlParams = new URLSearchParams(window.location.search);
         const googleAuthSuccess = urlParams.get('google_auth_success');
         const userDataParam = urlParams.get('user');
@@ -81,20 +84,30 @@ export default function DashboardPage() {
 
     // Load wallet balance and user data
     useEffect(() => {
-        const currentUser = getCurrentUser();
-        if (currentUser) {
-            setUser(currentUser);
-            setIsLoggedIn(true);
-            setShowLogin(false);
-            const balance = getUserWalletBalance();
-            setWalletBalance(balance);
-        } else {
+        // Only run on client side
+        if (typeof window === 'undefined') return;
+        
+        try {
+            const currentUser = getCurrentUser();
+            if (currentUser) {
+                setUser(currentUser);
+                setIsLoggedIn(true);
+                setShowLogin(false);
+                const balance = getUserWalletBalance();
+                setWalletBalance(balance);
+            } else {
+                setIsLoggedIn(false);
+                setWalletBalance(0);
+                const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
+                if (redirectUrl) {
+                    setShowLogin(true);
+                }
+            }
+        } catch (error) {
+            console.error('Error loading user data:', error);
+            // Set defaults on error
             setIsLoggedIn(false);
             setWalletBalance(0);
-            const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
-            if (redirectUrl) {
-                setShowLogin(true);
-            }
         }
     }, []);
 
@@ -218,10 +231,14 @@ export default function DashboardPage() {
     ], []);
 
     const favorites = useMemo(() => {
-        if (!isLoggedIn) return [];
-        return getUserFavorites();
+        if (!isLoggedIn || typeof window === 'undefined') return [];
+        try {
+            return getUserFavorites();
+        } catch (error) {
+            console.error('Error loading favorites:', error);
+            return [];
+        }
     }, [isLoggedIn, activeTab]);
-
 
     if (showPayment && selectedOption) {
         return (
@@ -270,13 +287,13 @@ export default function DashboardPage() {
 
     if (showLogin && !isLoggedIn) {
         return (
-            <>
+            <main className="min-h-screen">
                 <LoginModal
                     isOpen={showLogin}
                     onClose={() => setShowLogin(false)}
                     onSuccess={handleLoginSuccess}
                 />
-            </>
+            </main>
         );
     }
 
@@ -679,4 +696,27 @@ export default function DashboardPage() {
             </div>
         </main>
     );
+}
+
+// Wrap in error boundary
+export default function DashboardPage() {
+    try {
+        return <DashboardPageContent />;
+    } catch (error) {
+        console.error('Dashboard error:', error);
+        return (
+            <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-green-50 to-blue-100">
+                <div className="text-center">
+                    <h1 className="text-2xl font-bold text-gray-800 mb-4">Error Loading Dashboard</h1>
+                    <p className="text-gray-600 mb-4">Please refresh the page</p>
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="px-6 py-3 bg-gradient-to-r from-primary-blue to-primary-green text-white rounded-lg font-semibold hover:shadow-lg transition-all"
+                    >
+                        Refresh Page
+                    </button>
+                </div>
+            </main>
+        );
+    }
 }
