@@ -87,3 +87,5 @@ After running the script, the user should:
 2. See "Admin Dashboard" in their profile menu
 3. Be able to access `/admin` route
 
+
+

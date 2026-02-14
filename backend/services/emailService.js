@@ -8,21 +8,32 @@ class EmailService {
     }
 
     initialize() {
+        const port = parseInt(process.env.SMTP_PORT || '587');
+        const isSSL = port === 465;
+
         // Configure email transporter
         const emailConfig = {
             host: process.env.SMTP_HOST || 'smtp.gmail.com',
-            port: parseInt(process.env.SMTP_PORT || '587'),
-            secure: parseInt(process.env.SMTP_PORT || '587') === 465, // true for 465, false for other ports
+            port,
+            secure: isSSL, // true for 465 (SSL), false for 587 (STARTTLS)
             auth: {
                 user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASSWORD,
             },
-            // Debugging entries
-            connectionTimeout: 10000, // 10 seconds
-            greetingTimeout: 10000,
-            socketTimeout: 10000,
-            logger: true,
-            debug: true,
+            // Force IPv4 — Render/cloud platforms often lack IPv6 connectivity
+            family: 4,
+            // For port 587: upgrade to TLS after connecting
+            ...(!isSSL && { requireTLS: true }),
+            tls: {
+                // Do not fail on self-signed certs (some cloud environments need this)
+                rejectUnauthorized: false,
+            },
+            // Use shorter timeouts so failures surface faster
+            connectionTimeout: 15000, // 15 seconds
+            greetingTimeout: 15000,
+            socketTimeout: 15000,
+            logger: process.env.NODE_ENV !== 'production',
+            debug: process.env.NODE_ENV !== 'production',
         };
 
         // Only create transporter if credentials are provided
