@@ -117,4 +117,65 @@ export const adminApi = {
             return { success: false, error: 'Failed to fetch statistics' };
         }
     },
+
+    // Therapist Management
+    getTherapists: async () => {
+        try {
+            // This is a public route, but we can use admin token if needed
+            const response = await fetch(`${API_URL}/api/therapists`);
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching therapists:', error);
+            return { success: false, error: 'Failed to fetch therapists' };
+        }
+    },
+
+    addTherapist: async (therapistData: any) => {
+        try {
+            const response = await fetch(`${API_URL}/api/therapists`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${getAuthToken()}`,
+                },
+                body: JSON.stringify(therapistData),
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Error adding therapist:', error);
+            return { success: false, error: 'Failed to add therapist' };
+        }
+    },
+
+    updateTherapist: async (id: string, updates: any) => {
+        try {
+            const response = await fetch(`${API_URL}/api/therapists/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${getAuthToken()}`,
+                },
+                body: JSON.stringify(updates),
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Error updating therapist:', error);
+            return { success: false, error: 'Failed to update therapist' };
+        }
+    },
+
+    deleteTherapist: async (id: string) => {
+        try {
+            const response = await fetch(`${API_URL}/api/therapists/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${getAuthToken()}`,
+                },
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Error deleting therapist:', error);
+            return { success: false, error: 'Failed to delete therapist' };
+        }
+    },
 };

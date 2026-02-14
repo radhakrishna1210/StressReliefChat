@@ -12,7 +12,6 @@ import FavoritesSection from '@/components/dashboard/FavoritesSection';
 import LoginModal from '@/components/auth/LoginModal';
 
 import DashboardNav from '@/components/dashboard/DashboardNav';
-import { therapists } from '@/lib/data';
 import { FaArrowLeft, FaHistory, FaHeart, FaWallet } from 'react-icons/fa';
 import {
     getCurrentUser,
@@ -46,7 +45,7 @@ function DashboardPageContent() {
     useEffect(() => {
         // Only run on client side
         if (typeof window === 'undefined') return;
-        
+
         const urlParams = new URLSearchParams(window.location.search);
         const googleAuthSuccess = urlParams.get('google_auth_success');
         const userDataParam = urlParams.get('user');
@@ -86,7 +85,7 @@ function DashboardPageContent() {
     useEffect(() => {
         // Only run on client side
         if (typeof window === 'undefined') return;
-        
+
         try {
             const currentUser = getCurrentUser();
             if (currentUser) {
@@ -173,13 +172,8 @@ function DashboardPageContent() {
     }, []);
 
     const handleTherapistSelect = useCallback(() => {
-        setSelectedOption({
-            type: 'therapist',
-            name: 'Licensed Teletherapy',
-            pricePerMin: 5,
-        });
-        setShowPayment(false);
-    }, []);
+        router.push('/licensed-therapists');
+    }, [router]);
 
     const handlePaymentComplete = useCallback((paymentAmount: number) => {
         const currentWallet = getUserWalletBalance();
@@ -427,107 +421,10 @@ function DashboardPageContent() {
         );
     }
 
-    if (selectedOption?.type === 'therapist' && !showPayment) {
-        return (
-            <main className="min-h-screen">
-                <DashboardNav
-                    user={user}
-                    isLoggedIn={isLoggedIn}
-                    walletBalance={walletBalance}
-                    showProfileMenu={showProfileMenu}
-                    onWalletClick={() => setActiveTab('wallet')}
-                    onProfileClick={() => setShowProfileMenu(!showProfileMenu)}
-                    onDashboardClick={() => {
-                        if (user?.role === 'admin') {
-                            router.push('/admin');
-                        } else if (user?.role === 'listener') {
-                            router.push('/listener');
-                        } else {
-                            setActiveTab('history');
-                        }
-                        setShowProfileMenu(false);
-                    }}
-                    onLogout={handleLogout}
-                    onLoginClick={() => {
-                        setShowLogin(true);
-                        setShowProfileMenu(false);
-                    }}
-                />
-                <div className="py-12 px-4">
-                    <div className="max-w-6xl mx-auto">
-                        <motion.button
-                            onClick={() => setSelectedOption(null)}
-                            className="mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-800"
-                            whileHover={{ x: -5 }}
-                        >
-                            <FaArrowLeft /> Back to options
-                        </motion.button>
-                        <h2 className="text-3xl font-bold text-gray-800 mb-2 text-center">
-                            Licensed Therapists
-                        </h2>
-                        <p className="text-gray-600 text-center mb-8">
-                            Professional psychologists for clinical care
-                        </p>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            {therapists.map((therapist, index) => (
-                                <motion.div
-                                    key={therapist.id}
-                                    className="glass rounded-2xl shadow-glass hover:shadow-glass-hover p-6 transition-all border-2 border-white/30 hover:border-white/50"
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: index * 0.1 }}
-                                    whileHover={{ y: -5 }}
-                                >
-                                    <div className="text-center mb-4">
-                                        <div className="text-6xl mb-2">{therapist.avatar}</div>
-                                        <h3 className="text-xl font-bold text-gray-800">{therapist.name}</h3>
-                                        <p className="text-primary-blue font-semibold text-sm">{therapist.title}</p>
-                                    </div>
-                                    <p className="text-gray-600 text-sm mb-4">{therapist.description}</p>
-                                    <div className="mb-4">
-                                        <div className="text-xs text-gray-600 mb-1">Credentials: {therapist.credentials}</div>
-                                        <div className="text-xs text-gray-600 mb-2">Experience: {therapist.experience}</div>
-                                        <div className="flex flex-wrap gap-2">
-                                            {therapist.specialties.map((spec) => (
-                                                <span
-                                                    key={spec}
-                                                    className="px-2 py-1 bg-green-50 text-primary-green rounded-lg text-xs"
-                                                >
-                                                    {spec}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    <div className="flex justify-between items-center mb-4">
-                                        <div className="text-2xl font-bold text-primary-blue">
-                                            ₹{therapist.pricePerMin}/min
-                                        </div>
-                                        <div className="text-sm text-gray-600">⭐ {therapist.rating}</div>
-                                    </div>
-                                    <motion.button
-                                        onClick={() => {
-                                            setSelectedOption({
-                                                type: 'therapist',
-                                                name: therapist.name,
-                                                pricePerMin: therapist.pricePerMin,
-                                                id: therapist.id,
-                                            });
-                                            setShowPayment(true);
-                                        }}
-                                        className="w-full py-3 bg-gradient-to-r from-primary-blue to-primary-green text-white rounded-xl font-semibold hover:shadow-lg transition-all"
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                    >
-                                        Book {therapist.name}
-                                    </motion.button>
-                                </motion.div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </main>
-        );
-    }
+
+    // Removed: if (selectedOption?.type === 'therapist' && !showPayment) { ... }
+    // render block
+
 
     return (
         <main className="min-h-screen">

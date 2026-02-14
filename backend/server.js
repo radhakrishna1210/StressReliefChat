@@ -105,6 +105,7 @@ app.use('/api', apiLimiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/admin', require('./routes/adminRoutes'));
+app.use('/api/therapists', require('./routes/therapistRoutes'));
 
 // 404 handler for unknown routes
 app.use(notFound);
