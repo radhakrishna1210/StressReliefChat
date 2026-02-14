@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const dns = require('dns');
 const logger = require('../utils/logger');
 
 class EmailService {
@@ -20,8 +21,12 @@ class EmailService {
                 user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASSWORD,
             },
-            // Force IPv4 — Render/cloud platforms often lack IPv6 connectivity
+            // Force IPv4 — many environments lack IPv6 connectivity
             family: 4,
+            // Custom DNS lookup to guarantee IPv4 resolution
+            lookup: (hostname, options, callback) => {
+                dns.lookup(hostname, { ...options, family: 4 }, callback);
+            },
             // For port 587: upgrade to TLS after connecting
             ...(!isSSL && { requireTLS: true }),
             tls: {
