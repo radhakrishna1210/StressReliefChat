@@ -1,5 +1,4 @@
 const nodemailer = require('nodemailer');
-const dns = require('dns');
 const logger = require('../utils/logger');
 
 class EmailService {
@@ -9,36 +8,15 @@ class EmailService {
     }
 
     initialize() {
-        const port = parseInt(process.env.SMTP_PORT || '587');
-        const isSSL = port === 465;
-
         // Configure email transporter
         const emailConfig = {
             host: process.env.SMTP_HOST || 'smtp.gmail.com',
-            port,
-            secure: isSSL, // true for 465 (SSL), false for 587 (STARTTLS)
+            port: parseInt(process.env.SMTP_PORT || '587'),
+            secure: parseInt(process.env.SMTP_PORT || '587') === 465, // true for 465, false for other ports
             auth: {
                 user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASSWORD,
             },
-            // Force IPv4 — many environments lack IPv6 connectivity
-            family: 4,
-            // Custom DNS lookup to guarantee IPv4 resolution
-            lookup: (hostname, options, callback) => {
-                dns.lookup(hostname, { ...options, family: 4 }, callback);
-            },
-            // For port 587: upgrade to TLS after connecting
-            ...(!isSSL && { requireTLS: true }),
-            tls: {
-                // Do not fail on self-signed certs (some cloud environments need this)
-                rejectUnauthorized: false,
-            },
-            // Use shorter timeouts so failures surface faster
-            connectionTimeout: 15000, // 15 seconds
-            greetingTimeout: 15000,
-            socketTimeout: 15000,
-            logger: process.env.NODE_ENV !== 'production',
-            debug: process.env.NODE_ENV !== 'production',
         };
 
         // Only create transporter if credentials are provided

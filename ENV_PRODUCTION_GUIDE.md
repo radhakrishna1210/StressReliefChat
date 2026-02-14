@@ -154,5 +154,3 @@ When deploying to Render, you don't need a `.env.production` file. Instead, set 
 - [ ] Test the application locally with production variables
 - [ ] Deploy and verify environment variables are set correctly
 
-
-
